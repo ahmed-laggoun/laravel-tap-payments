@@ -7,7 +7,7 @@ class Invoice
 	protected $attributes;
 
 
-	public function __construct( $data )
+	public function __construct($data)
 	{
 		$this->attributes = (array)$data;
 	}
@@ -15,13 +15,13 @@ class Invoice
 
 	public function isSuccess()
 	{
-		return isset( $this->attributes['status'] ) && strtolower( $this->attributes['status'] ) == 'captured';
+		return isset($this->attributes['status']) && strtolower($this->attributes['status']) == 'captured';
 	}
 
 
 	public function isInitiated()
 	{
-		return isset( $this->attributes['status'] ) && strtolower( $this->attributes['status'] ) == 'initiated';
+		return isset($this->attributes['status']) && strtolower($this->attributes['status']) == 'initiated';
 	}
 
 
@@ -42,7 +42,7 @@ class Invoice
 		return $this->attributes['metadata'] ?? null;
 	}
 
-	public function checkHash( $hash )
+	public function checkHash($hash)
 	{
 		$data = [
 			'x_id'                => $this->attributes['id'] ?? null,
@@ -56,22 +56,22 @@ class Invoice
 
 		$decimals = $data['x_currency'] == 'KWD' ? 3 : 2;
 
-		$data['x_amount'] = number_format( $data['x_amount'], $decimals, '.', '' );
+		$data['x_amount'] = number_format($data['x_amount'], $decimals, '.', '');
 
 		$stringToHash = implode(
 			'',
 			array_map(
-				function( $value, $key ) {
+				function ($value, $key) {
 					return $key . $value;
 				},
 				$data,
-				array_keys( $data )
+				array_keys($data)
 			)
 		);
 
-		$key = config( 'tap-payment.auth.api_key' );
+		$key = config('tap-payment.auth.api_key');
 
-		$hashedString = hash_hmac( 'sha256', $stringToHash, $key );
+		$hashedString = hash_hmac('sha256', $stringToHash, $key);
 
 		return $hashedString == $hash;
 	}

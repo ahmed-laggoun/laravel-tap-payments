@@ -15,7 +15,7 @@ class TapPaymentServiceProvider extends ServiceProvider
 	{
 		$this->publishes(
 			[
-				__DIR__ . '/Publishing/config.php' => config_path( 'tap-payment.php' ),
+				__DIR__ . '/Publishing/config.php' => config_path('tap-payment.php'),
 			]
 		);
 		$this->mergeConfigFrom(
@@ -33,9 +33,10 @@ class TapPaymentServiceProvider extends ServiceProvider
 	public function register()
 	{
 		$this->app->singleton(
-			'tap-payment', function() {
-			return new TapService();
-		}
+			'tap-payment',
+			function () {
+				return new TapService();
+			}
 		);
 	}
 }

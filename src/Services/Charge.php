@@ -13,67 +13,67 @@ class Charge extends AbstractService
 	protected $attributes = [];
 
 
-	public function __construct( $id = null )
+	public function __construct($id = null)
 	{
-		if ( $id ) {
+		if ($id) {
 			$this->attributes['id'] = $id;
-			$this->setEndpoint( $id );
+			$this->setEndpoint($id);
 		}
 		parent::__construct();
 	}
 
 
-	protected function setEndpoint( $endpoint )
+	protected function setEndpoint($endpoint)
 	{
 		$this->endpoint .= $endpoint;
 	}
 
 
-	public function setAmount( $amount )
+	public function setAmount($amount)
 	{
 		$this->attributes['amount'] = $amount;
 	}
 
 
-	public function setCurrency( $currency )
+	public function setCurrency($currency)
 	{
 		$this->attributes['currency'] = $currency;
 	}
 
 
-	public function setThreeDSecure( $threeDSecure )
+	public function setThreeDSecure($threeDSecure)
 	{
 		$this->attributes['threeDSecure'] = $threeDSecure;
 	}
 
 
-	public function setSave_card( $save_card )
+	public function setSave_card($save_card)
 	{
 		$this->attributes['save_card'] = $save_card;
 	}
 
 
-	public function setDescription( $description )
+	public function setDescription($description)
 	{
 		$this->attributes['description'] = $description;
 	}
 
 
-	public function setCustomerName( $name )
+	public function setCustomerName($name)
 	{
-		$name = explode( ' ', $name );
-		$this->attributes['customer']['first_name'] = array_shift( $name );
-		$this->attributes['customer']['last_name'] = implode( ' ', $name );
+		$name = explode(' ', $name);
+		$this->attributes['customer']['first_name'] = array_shift($name);
+		$this->attributes['customer']['last_name'] = implode(' ', $name);
 	}
 
 
-	public function setCustomerEmail( $email )
+	public function setCustomerEmail($email)
 	{
 		$this->attributes['customer']['email'] = $email;
 	}
 
 
-	public function setCustomerPhone( $country_code, $phone )
+	public function setCustomerPhone($country_code, $phone)
 	{
 		$this->attributes['customer']['phone'] = [
 			'country_code' => $country_code,
@@ -82,31 +82,31 @@ class Charge extends AbstractService
 	}
 
 
-	public function setRedirectUrl( $url )
+	public function setRedirectUrl($url)
 	{
 		$this->attributes['redirect']['url'] = $url;
 	}
 
 
-	public function setPostUrl( $url )
+	public function setPostUrl($url)
 	{
 		$this->attributes['post']['url'] = $url;
 	}
 
 
-	public function setSource( $source )
+	public function setSource($source)
 	{
 		$this->attributes['source']['id'] = $source;
 	}
 
 
-	public function setMetaData( array $meta )
+	public function setMetaData(array $meta)
 	{
 		$this->attributes['metadata'] = $meta;
 	}
 
 
-	public function setRawAttributes( array $attributes )
+	public function setRawAttributes(array $attributes)
 	{
 		$this->attributes = $attributes;
 	}
@@ -118,19 +118,19 @@ class Charge extends AbstractService
 	 */
 	public function find()
 	{
-		$this->setMethod( 'get' );
+		$this->setMethod('get');
 		if (
-		$this->validateAttributes(
-			[
-				'id' => 'required'
-			]
-		)
+			$this->validateAttributes(
+				[
+					'id' => 'required'
+				]
+			)
 		)
 			return $this->send();
 	}
 
 
-	protected function setMethod( $method )
+	protected function setMethod($method)
 	{
 		$this->method = $method;
 	}
@@ -142,12 +142,12 @@ class Charge extends AbstractService
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function validateAttributes( array $rules, $messages = [] )
+	public function validateAttributes(array $rules, $messages = [])
 	{
-		$validator = Validator::make( $this->attributes, $rules, $messages );
+		$validator = Validator::make($this->attributes, $rules, $messages);
 
-		if ( $validator->fails() )
-			throw new \Exception( $validator->errors()->first() );
+		if ($validator->fails())
+			throw new \Exception($validator->errors()->first());
 
 		return true;
 	}
@@ -166,16 +166,15 @@ class Charge extends AbstractService
 				[
 					'form_params' => $this->attributes,
 					'headers'     => [
-						'Authorization' => 'Bearer ' . config( 'tap-payment.auth.api_key' ),
+						'Authorization' => 'Bearer ' . config('tap-payment.auth.api_key'),
 						'Accept'        => 'application/json',
 					]
 				]
 			);
 
-			return new Invoice( json_decode( $response->getBody()->getContents(), true ) );
-		}
-		catch ( \Throwable $exception ) {
-			throw new \Exception( $exception->getMessage() );
+			return new Invoice(json_decode($response->getBody()->getContents(), true));
+		} catch (\Throwable $exception) {
+			throw new \Exception($exception->getMessage());
 		}
 	}
 
@@ -193,23 +192,23 @@ class Charge extends AbstractService
 			'source.id'    => 'required',
 			'redirect.url' => 'required',
 		];
-		foreach ( config( 'tap-payment.customer.requirements' ) as $item ) {
-			if ( $item == 'mobile' ) {
+		foreach (config('tap-payment.customer.requirements') as $item) {
+			if ($item == 'mobile') {
 				$rules['customer.phone'] = 'required';
-				$rules['customer.phone.country_code'] = [ 'required', 'numeric' ];
-				$rules['customer.phone.number'] = [ 'required', 'numeric' ];
+				$rules['customer.phone.country_code'] = ['required', 'numeric'];
+				$rules['customer.phone.number'] = ['required', 'numeric'];
 			} else {
-				$rules[ 'customer.' . $item ] = 'required';
+				$rules['customer.' . $item] = 'required';
 			}
 		}
 
 		if (
-		$this->validateAttributes(
-			$rules,
-			[
-				'id.regex' => "ID should be empty when you create a new Charge."
-			]
-		)
+			$this->validateAttributes(
+				$rules,
+				[
+					'id.regex' => "ID should be empty when you create a new Charge."
+				]
+			)
 		)
 			return $this->send();
 	}
